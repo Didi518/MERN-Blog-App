@@ -1,107 +1,102 @@
-import React from 'react';
-import MainLayout from '../../components/MainLayout';
+import React, { useState } from 'react';
+import { Link, useParams } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { useQuery } from '@tanstack/react-query';
+
 import BreadCrumbs from '../../components/BreadCrumbs';
-import { images } from '../../constants';
-import { Link } from 'react-router-dom';
-import SuggestedPosts from './container/SuggestedPosts';
 import CommentsContainer from '../../components/comments/CommentsContainer';
+import MainLayout from '../../components/MainLayout';
 import SocialShareButtons from '../../components/SocialShareButtons';
-
-const breadCrumbsData = [
-  { name: 'Accueil', link: '/' },
-  { name: 'Blog', link: '/blog' },
-  { name: "Titre de l'article", link: '/blog/1' },
-];
-
-const postsData = [
-  {
-    _id: '1',
-    image: images.Post1Image,
-    title: 'Aidez nos enfants pour leur éducation',
-    createdAt: '2023-01-28T15:35:53.607+0000',
-  },
-  {
-    _id: '2',
-    image: images.Post1Image,
-    title: 'Aidez nos enfants pour leur éducation',
-    createdAt: '2023-01-28T15:35:53.607+0000',
-  },
-  {
-    _id: '3',
-    image: images.Post1Image,
-    title: 'Aidez nos enfants pour leur éducation',
-    createdAt: '2023-01-28T15:35:53.607+0000',
-  },
-  {
-    _id: '4',
-    image: images.Post1Image,
-    title: 'Aidez nos enfants pour leur éducation',
-    createdAt: '2023-01-28T15:35:53.607+0000',
-  },
-];
-
-const tagsData = [
-  'Médecine',
-  'Mode de vie',
-  'Découverte',
-  'Santé',
-  'Nourriture',
-  'Diététique',
-  'Education',
-];
+import { images, stables } from '../../constants';
+import SuggestedPosts from './container/SuggestedPosts';
+import { getAllPosts, getSinglePost } from '../../services/index/posts';
+import ArticleDetailSkeleton from './components/ArticleDetailSkeleton';
+import ErrorMessage from '../../components/ErrorMessage';
+import parseJsonToHtml from '../../utils/parseJsonToHtml';
 
 const ArticleDetailPage = () => {
+  const { slug } = useParams();
+  const userState = useSelector((state) => state.user);
+  const [breadCrumbsData, setbreadCrumbsData] = useState([]);
+  const [body, setBody] = useState(null);
+
+  const { data, isLoading, isError } = useQuery({
+    queryFn: () => getSinglePost({ slug }),
+    queryKey: ['blog', slug],
+    onSuccess: (data) => {
+      setbreadCrumbsData([
+        { name: 'Home', link: '/' },
+        { name: 'Blog', link: '/blog' },
+        { name: 'Article title', link: `/blog/${data.slug}` },
+      ]);
+      setBody(parseJsonToHtml(data?.body));
+    },
+  });
+
+  const { data: postsData } = useQuery({
+    queryFn: () => getAllPosts(),
+    queryKey: ['posts'],
+  });
+
   return (
     <MainLayout>
-      <section className="container mx-auto max-w-5xl flex flex-col px-5 py-5 lg:flex-row lg:gap-x-5 lg:items-start">
-        <article className="flex-1">
-          <BreadCrumbs data={breadCrumbsData} />
-          <img
-            className="rounded-xl w-full"
-            src={images.Post1Image}
-            alt="laptop"
-          />
-          <Link
-            to="/blog/?categorie/categorieChoisie"
-            className="text-primary text-sm font-roboto inline-block mt-4 md:text-base"
-          >
-            EDUCATION
-          </Link>
-          <h1 className="text-xl font-medium font-roboto mt-4 text-dark-hard md:text-[26px]">
-            Aidez nos enfants avec leur éducation
-          </h1>
-          <div className="mt-4 text-dark-soft">
-            <p className="leading-7">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Eligendi
-              quia repellendus, asperiores iusto itaque tempora eum fugiat
-              consectetur aperiam, molestiae officiis eaque nesciunt corporis
-              sapiente minus deserunt maxime, excepturi error illum dignissimos
-              et aliquid laborum dolores? Tenetur itaque dolorum earum officia
-              dicta facilis vitae voluptatibus? Dolores eligendi tempora esse
-              aut minima voluptates totam velit nisi praesentium, numquam
-              dignissimos laudantium ad.
-            </p>
-          </div>
-          <CommentsContainer className="mt-10" logginedUserId="a" />
-        </article>
-        <div>
-          <SuggestedPosts
-            header="Articles Récents"
-            posts={postsData}
-            tags={tagsData}
-            className="mt-8 lg:mt-0 max-w-xs"
-          />
-          <div className="mt-7">
-            <h2 className="font-roboto font-medium text-dark-hard mb-4 md:text-xl">
-              Partagez:
-            </h2>
-            <SocialShareButtons
-              url={encodeURI('https://kevflix-mu.vercel.app')}
-              title={encodeURIComponent('KevFlix')}
+      {isLoading ? (
+        <ArticleDetailSkeleton />
+      ) : isError ? (
+        <ErrorMessage message="Couldn't fetch the post detail" />
+      ) : (
+        <section className="container mx-auto max-w-5xl flex flex-col px-5 py-5 lg:flex-row lg:gap-x-5 lg:items-start">
+          <article className="flex-1">
+            <BreadCrumbs data={breadCrumbsData} />
+            <img
+              className="rounded-xl w-full"
+              src={
+                data?.photo
+                  ? stables.UPLOAD_FOLDER_BASE_URL + data?.photo
+                  : images.samplePostImage
+              }
+              alt={data?.title}
             />
+            <div className="mt-4 flex gap-2">
+              {data?.categories.map((category) => (
+                <Link
+                  to={`/blog?category=${category.name}`}
+                  className="text-primary text-sm font-roboto inline-block md:text-base"
+                >
+                  {category.name}
+                </Link>
+              ))}
+            </div>
+            <h1 className="text-xl font-medium font-roboto mt-4 text-dark-hard md:text-[26px]">
+              {data?.title}
+            </h1>
+            <div className="mt-4 prose prose-sm sm:prose-base">{body}</div>
+            <CommentsContainer
+              comments={data?.comments}
+              className="mt-10"
+              logginedUserId={userState?.userInfo?._id}
+              postSlug={slug}
+            />
+          </article>
+          <div>
+            <SuggestedPosts
+              header="Articles Récents"
+              posts={postsData?.data}
+              tags={data?.tags}
+              className="mt-8 lg:mt-0 lg:max-w-xs"
+            />
+            <div className="mt-7">
+              <h2 className="font-roboto font-medium text-dark-hard mb-4 md:text-xl">
+                Share on:
+              </h2>
+              <SocialShareButtons
+                url={encodeURI(window.location.href)}
+                title={encodeURIComponent(data?.title)}
+              />
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </MainLayout>
   );
 };

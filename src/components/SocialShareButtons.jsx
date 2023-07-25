@@ -12,7 +12,7 @@ const SocialShareButtons = ({ url, title }) => {
       <a
         target="_blank"
         rel="noreferrer"
-        href={`https://www.facebook.com/dialog/share?app_id=1415093975937170&display=popup&href=${url}`}
+        href={`https://www.facebook.com/dialog/share?app_id=681614680475264&display=popup&href=${url}`}
       >
         <FaFacebookSquare className="text-[#3b5998] w-12 h-auto" />
       </a>

@@ -17,7 +17,7 @@ const ProfilePicture = ({ avatar }) => {
   const [openCrop, setOpenCrop] = useState(false);
   const [photo, setPhoto] = useState(null);
 
-  const { mutate, isLoading } = useMutation({
+  const { mutate } = useMutation({
     mutationFn: ({ token, formData }) => {
       return updateProfilePicture({
         token: token,
@@ -27,7 +27,7 @@ const ProfilePicture = ({ avatar }) => {
     onSuccess: (data) => {
       dispatch(userActions.setUserInfo(data));
       setOpenCrop(false);
-      localStorage.setItem('account', JSON.stringify(data));
+      localStorage.setItem('compte', JSON.stringify(data));
       queryClient.invalidateQueries(['profile']);
       toast.success('Photo de profil supprimée');
     },
