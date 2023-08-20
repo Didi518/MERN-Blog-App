@@ -1,20 +1,20 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
-import { toast } from 'react-hot-toast';
-import { Link } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import { toast } from "react-hot-toast";
+import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 
-import { deletePost, getAllPosts } from '../../../../services/index/posts';
-import stables from '../../../../constants/stables';
-import images from '../../../../constants/images';
-import Pagination from '../../../../components/Pagination';
+import { deletePost, getAllPosts } from "../../../../services/index/posts";
+import stables from "../../../../constants/stables";
+import images from "../../../../constants/images";
+import Pagination from "../../../../components/Pagination";
 
 let isFirstRun = true;
 
 const ManagePosts = () => {
   const userState = useSelector((state) => state.user);
   const queryClient = useQueryClient();
-  const [searchKeyword, setSearchKeyword] = useState('');
+  const [searchKeyword, setSearchKeyword] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
   const {
@@ -24,7 +24,7 @@ const ManagePosts = () => {
     refetch,
   } = useQuery({
     queryFn: () => getAllPosts(searchKeyword, currentPage),
-    queryKey: ['posts'],
+    queryKey: ["posts"],
   });
 
   const { mutate: mutateDeletePost, isLoading: isLoadingDeletePost } =
@@ -33,8 +33,8 @@ const ManagePosts = () => {
         return deletePost({ slug, token });
       },
       onSuccess: (data) => {
-        queryClient.invalidateQueries(['posts']);
-        toast.success('Article supprimé');
+        queryClient.invalidateQueries(["posts"]);
+        toast.success("Article supprimé");
       },
       onError: (error) => {
         toast.error(error.message);
@@ -146,7 +146,7 @@ const ManagePosts = () => {
                     </tr>
                   ) : (
                     postsData?.data.map((post) => (
-                      <tr>
+                      <tr key={post.id}>
                         <td className="px-5 py-5 text-sm bg-white border-b border-gray-200">
                           <div className="flex items-center">
                             <div className="flex-shrink-0">
@@ -154,9 +154,9 @@ const ManagePosts = () => {
                                 <img
                                   alt={post.title}
                                   src={
-                                    post?.image
+                                    post?.photo
                                       ? stables.UPLOAD_FOLDER_BASE_URL +
-                                        post.image
+                                        post?.photo
                                       : images.samplePostImage
                                   }
                                   className="mx-auto object-cover rounded-lg w-10 aspect-square"
@@ -174,15 +174,15 @@ const ManagePosts = () => {
                           <p className="text-gray-900 whitespace-no-wrap">
                             {post.categories.length > 0
                               ? post.categories[0]
-                              : 'Sans catégorie'}
+                              : "Sans catégorie"}
                           </p>
                         </td>
                         <td className="px-5 py-5 text-sm bg-white border-b border-gray-200">
                           <p className="text-gray-900 whitespace-no-wrap">
-                            {new Date(post.createdAt).toLocaleDateString('fr', {
-                              day: 'numeric',
-                              month: 'short',
-                              year: 'numeric',
+                            {new Date(post.createdAt).toLocaleDateString("fr", {
+                              day: "numeric",
+                              month: "short",
+                              year: "numeric",
                             })}
                           </p>
                         </td>
@@ -192,10 +192,10 @@ const ManagePosts = () => {
                               ? post.tags.map((tag, index) => (
                                   <p>
                                     {tag}
-                                    {post.tags.length - 1 !== index && ','}
+                                    {post.tags.length - 1 !== index && ","}
                                   </p>
                                 ))
-                              : 'Aucun tag'}
+                              : "Aucun tag"}
                           </div>
                         </td>
                         <td className="px-5 py-5 text-sm bg-white border-b border-gray-200 space-x-5">
@@ -229,7 +229,7 @@ const ManagePosts = () => {
                   onPageChange={(page) => setCurrentPage(page)}
                   currentPage={currentPage}
                   totalPageCount={JSON.parse(
-                    postsData?.headers?.['x-totalpagecount']
+                    postsData?.headers?.["x-totalpagecount"]
                   )}
                 />
               )}
