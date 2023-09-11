@@ -1,17 +1,17 @@
-import React from 'react';
-import { FaArrowRight } from 'react-icons/fa';
+import React from "react";
+import { FaArrowRight } from "react-icons/fa";
+import { useQuery } from "@tanstack/react-query";
+import { toast } from "react-hot-toast";
 
-import ArticleCard from '../../../components/ArticleCard';
-import { useQuery } from '@tanstack/react-query';
-import { getAllPosts } from '../../../services/index/posts';
-import { toast } from 'react-hot-toast';
-import ArticleCardSkeleton from '../../../components/ArticleCardSkeleton';
-import ErrorMessage from '../../../components/ErrorMessage';
+import ArticleCard from "../../../components/ArticleCard";
+import { getAllPosts } from "../../../services/index/posts";
+import ArticleCardSkeleton from "../../../components/ArticleCardSkeleton";
+import ErrorMessage from "../../../components/ErrorMessage";
 
 const Articles = () => {
   const { data, isLoading, isError } = useQuery({
     queryFn: () => getAllPosts(),
-    queryKey: ['posts'],
+    queryKey: ["posts"],
     onError: (error) => {
       toast.error(error.message);
       console.log(error);

@@ -1,15 +1,15 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import React, { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { HiOutlineCamera } from 'react-icons/hi';
-import { toast } from 'react-hot-toast';
-import { useSelector } from 'react-redux';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import React, { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import { HiOutlineCamera } from "react-icons/hi";
+import { toast } from "react-hot-toast";
+import { useSelector } from "react-redux";
 
-import { getSinglePost, updatePost } from '../../../../services/index/posts';
-import ArticleDetailSkeleton from '../../../articleDetail/components/ArticleDetailSkeleton';
-import ErrorMessage from '../../../../components/ErrorMessage';
-import { stables } from '../../../../constants';
-import Editor from '../../../../components/editor/Editor';
+import { getSinglePost, updatePost } from "../../../../services/index/posts";
+import ArticleDetailSkeleton from "../../../articleDetail/components/ArticleDetailSkeleton";
+import ErrorMessage from "../../../../components/ErrorMessage";
+import { stables } from "../../../../constants";
+import Editor from "../../../../components/editor/Editor";
 
 const EditPost = () => {
   const userState = useSelector((state) => state.user);
@@ -21,7 +21,7 @@ const EditPost = () => {
 
   const { data, isLoading, isError } = useQuery({
     queryFn: () => getSinglePost({ slug }),
-    queryKey: ['blog', slug],
+    queryKey: ["blog", slug],
   });
 
   const {
@@ -32,8 +32,8 @@ const EditPost = () => {
       return updatePost({ updatedData, slug, token });
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries(['blog', slug]);
-      toast.success('Article mis à jour');
+      queryClient.invalidateQueries(["blog", slug]);
+      toast.success("Article mis à jour");
     },
     onError: (error) => {
       toast.error(error.message);
@@ -56,7 +56,7 @@ const EditPost = () => {
     let updatedData = new FormData();
 
     if (!initialPhoto && photo) {
-      updatedData.append('postPicture', photo);
+      updatedData.append("postPicture", photo);
     } else if (initialPhoto && !photo) {
       const urlToObject = async (url) => {
         let response = await fetch(url);
@@ -67,9 +67,9 @@ const EditPost = () => {
       const picture = await urlToObject(
         stables.UPLOAD_FOLDER_BASE_URL + data?.photo
       );
-      updatedData.append('postPicture', picture);
+      updatedData.append("postPicture", picture);
     }
-    updatedData.append('document', JSON.stringify({ body }));
+    updatedData.append("document", JSON.stringify({ body }));
 
     mutateUpdatePostDetail({
       updatedData,
@@ -90,7 +90,7 @@ const EditPost = () => {
       {isLoading ? (
         <ArticleDetailSkeleton />
       ) : isError ? (
-        <ErrorMessage message="Couldn't fetch the post detail" />
+        <ErrorMessage message="Echec de la récupération des détails de l'article" />
       ) : (
         <section className="container mx-auto max-w-5xl flex flex-col px-5 py-5 lg:flex-row lg:gap-x-5 lg:items-start">
           <article className="flex-1">

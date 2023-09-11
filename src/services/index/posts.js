@@ -1,6 +1,6 @@
-import axios from 'axios';
+import axios from "axios";
 
-export const getAllPosts = async (recherche = '', page = 1, limit = 10) => {
+export const getAllPosts = async (recherche = "", page = 1, limit = 10) => {
   try {
     const { data, headers } = await axios.get(
       `/api/posts?recherche=${recherche}&page=${page}&limit=${limit}`
@@ -50,6 +50,23 @@ export const updatePost = async ({ updatedData, slug, token }) => {
     };
 
     const { data } = await axios.put(`/api/posts/${slug}`, updatedData, config);
+    return data;
+  } catch (error) {
+    if (error.response && error.response.data.message)
+      throw new Error(error.response.data.message);
+    throw new Error(error.message);
+  }
+};
+
+export const createPost = async ({ token }) => {
+  try {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    const { data } = await axios.post(`/api/posts`, {}, config);
     return data;
   } catch (error) {
     if (error.response && error.response.data.message)

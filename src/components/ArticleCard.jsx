@@ -1,9 +1,9 @@
-import React from 'react';
-import { AiOutlineClose } from 'react-icons/ai';
-import { BsCheckLg } from 'react-icons/bs';
+import React from "react";
+import { AiOutlineClose } from "react-icons/ai";
+import { BsCheckLg } from "react-icons/bs";
+import { Link } from "react-router-dom";
 
-import { images, stables } from '../constants';
-import { Link } from 'react-router-dom';
+import { images, stables } from "../constants";
 
 const ArticleCard = ({ post, className }) => {
   return (
@@ -48,7 +48,7 @@ const ArticleCard = ({ post, className }) => {
               <div className="flex items-center gap-x-2">
                 <span
                   className={`${
-                    post.user.verified ? 'bg-[#36B37E]' : 'bg-red-500'
+                    post.user.verified ? "bg-[#36B37E]" : "bg-red-500"
                   } w-fit bg-opacity-20 p-1.5 rounded-full`}
                 >
                   {post.user.verified ? (
@@ -58,15 +58,15 @@ const ArticleCard = ({ post, className }) => {
                   )}
                 </span>
                 <span className="italic text-dark-light text-xs md:text-sm">
-                  Auteur {post.user.verified ? 'vérifié' : 'non vérifié'}
+                  Auteur {post.user.verified ? "vérifié" : "non vérifié"}
                 </span>
               </div>
             </div>
           </div>
           <span className="font-bold text-dark-light italic text-sm md:text-base">
-            {new Date(post.createdAt).getDate()}{' '}
-            {new Date(post.createdAt).toLocaleDateString('default', {
-              month: 'long',
+            {new Date(post.createdAt).getDate()}{" "}
+            {new Date(post.createdAt).toLocaleDateString("default", {
+              month: "long",
             })}
           </span>
         </div>
