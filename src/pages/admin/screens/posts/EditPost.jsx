@@ -1,27 +1,53 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import React, { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { HiOutlineCamera } from "react-icons/hi";
 import { toast } from "react-hot-toast";
 import { useSelector } from "react-redux";
+import CreatableSelect from "react-select/creatable";
 
 import { getSinglePost, updatePost } from "../../../../services/index/posts";
+import { getAllCategories } from "../../../../services/index/postCategories";
+import {
+  categoryToOption,
+  filterCategories,
+} from "../../../../utils/multiSelectTagUtils";
+import { stables } from "../../../../constants";
 import ArticleDetailSkeleton from "../../../articleDetail/components/ArticleDetailSkeleton";
 import ErrorMessage from "../../../../components/ErrorMessage";
-import { stables } from "../../../../constants";
 import Editor from "../../../../components/editor/Editor";
+import MultiSelectTagDropdown from "../../components/select-dropdown/MultiSelectTagDropdown";
+
+const promiseOptions = async (inputValue) => {
+  const categoriesData = await getAllCategories();
+  return filterCategories(inputValue, categoriesData);
+};
 
 const EditPost = () => {
   const userState = useSelector((state) => state.user);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const { slug } = useParams();
   const [initialPhoto, setInitialPhoto] = useState(null);
   const [photo, setPhoto] = useState(null);
   const [body, setBody] = useState(null);
-  const { slug } = useParams();
+  const [categories, setCategories] = useState(null);
+  const [title, setTitle] = useState("");
+  const [tags, setTags] = useState(null);
+  const [postSlug, setPostSlug] = useState(slug);
+  const [caption, setCaption] = useState("");
 
   const { data, isLoading, isError } = useQuery({
     queryFn: () => getSinglePost({ slug }),
     queryKey: ["blog", slug],
+    onSuccess: (data) => {
+      setInitialPhoto(data?.photo);
+      setCategories(data.categories.map((item) => item._id));
+      setTitle(data.title);
+      setTags(data.tags);
+      setCaption(data.caption);
+    },
+    refetchOnWindowFocus: false,
   });
 
   const {
@@ -34,18 +60,15 @@ const EditPost = () => {
     onSuccess: (data) => {
       queryClient.invalidateQueries(["blog", slug]);
       toast.success("Article mis à jour");
+      navigate(`/admin/articles/gestion/modifier/${data.slug}`, {
+        replace: true,
+      });
     },
     onError: (error) => {
       toast.error(error.message);
       console.log(error);
     },
   });
-
-  useEffect(() => {
-    if (!isLoading && !isError) {
-      setInitialPhoto(data?.photo);
-    }
-  }, [data, isError, isLoading]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -69,7 +92,10 @@ const EditPost = () => {
       );
       updatedData.append("postPicture", picture);
     }
-    updatedData.append("document", JSON.stringify({ body }));
+    updatedData.append(
+      "document",
+      JSON.stringify({ body, caption, categories, slug: postSlug, tags, title })
+    );
 
     mutateUpdatePostDetail({
       updatedData,
@@ -84,6 +110,8 @@ const EditPost = () => {
       setPhoto(null);
     }
   };
+
+  let isPostDataLoaded = !isLoading && !isError;
 
   return (
     <div>
@@ -131,16 +159,84 @@ const EditPost = () => {
                 <Link
                   to={`/blog?category=${category.name}`}
                   className="text-primary text-sm font-roboto inline-block md:text-base"
+                  key={category._id}
                 >
                   {category.name}
                 </Link>
               ))}
             </div>
-            <h1 className="text-xl font-medium font-roboto mt-4 text-dark-hard md:text-[26px]">
-              {data?.title}
-            </h1>
+            <div className="d-form-control w-full">
+              <label className="d-label" htmlFor="title">
+                <span className="d-label-text">Titre</span>
+              </label>
+              <input
+                id="title"
+                value={title}
+                className="d-input d-input-bordered border-slate-300 !outline-slate-300 text-xl font-medium font-roboto text-dark-hard"
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="titre"
+              />
+            </div>
+            <div className="d-form-control w-full">
+              <label className="d-label" htmlFor="caption">
+                <span className="d-label-text">Résumé</span>
+              </label>
+              <input
+                id="caption"
+                value={caption}
+                className="d-input d-input-bordered border-slate-300 !outline-slate-300 text-xl font-medium font-roboto text-dark-hard"
+                onChange={(e) => setCaption(e.target.value)}
+                placeholder="résumé"
+              />
+            </div>
+            <div className="d-form-control w-full">
+              <label className="d-label" htmlFor="slug">
+                <span className="d-label-text">Slug</span>
+              </label>
+              <input
+                id="slug"
+                value={postSlug}
+                className="d-input d-input-bordered border-slate-300 !outline-slate-300 text-xl font-medium font-roboto text-dark-hard"
+                onChange={(e) =>
+                  setPostSlug(e.target.value.replace(/\s+/g, "-").toLowerCase())
+                }
+                placeholder="slug"
+              />
+            </div>
+            <div className="mb-5 mt-2">
+              <label className="d-label">
+                <span className="d-label-text">Catégories</span>
+              </label>
+              {isPostDataLoaded && (
+                <MultiSelectTagDropdown
+                  loadOptions={promiseOptions}
+                  defaultValue={data.categories.map(categoryToOption)}
+                  onChange={(newValue) =>
+                    setCategories(newValue.map((item) => item.value))
+                  }
+                />
+              )}
+            </div>
+            <div className="mb-5 mt-2">
+              <label className="d-label">
+                <span className="d-label-text">Tags</span>
+              </label>
+              {isPostDataLoaded && (
+                <CreatableSelect
+                  defaultValue={data.tags.map((tag) => ({
+                    value: tag,
+                    label: tag,
+                  }))}
+                  isMulti
+                  onChange={(newValue) =>
+                    setTags(newValue.map((item) => item.value))
+                  }
+                  className="relative z-20"
+                />
+              )}
+            </div>
             <div className="w-full">
-              {!isLoading && !isError && (
+              {isPostDataLoaded && (
                 <Editor
                   content={data?.body}
                   editable={true}
