@@ -1,9 +1,11 @@
 {
   "folders": [
 	{
+		"name": "backend-blog-app",
 		"path": "../backend-blog-app"
 	},
 	{
+		"name": "frontend-blog-app",
 		"path": "."
 	}
 ],

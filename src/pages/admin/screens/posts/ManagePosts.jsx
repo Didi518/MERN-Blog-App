@@ -1,69 +1,33 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
-import { toast } from "react-hot-toast";
 import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
 
 import { deletePost, getAllPosts } from "../../../../services/index/posts";
 import stables from "../../../../constants/stables";
 import images from "../../../../constants/images";
 import Pagination from "../../../../components/Pagination";
-
-let isFirstRun = true;
+import { useDataTable } from "../../../../hooks/useDataTable";
 
 const ManagePosts = () => {
-  const userState = useSelector((state) => state.user);
-  const queryClient = useQueryClient();
-  const [searchKeyword, setSearchKeyword] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-
   const {
+    userState,
+    currentPage,
+    searchKeyword,
     data: postsData,
     isLoading,
     isFetching,
-    refetch,
-  } = useQuery({
-    queryFn: () => getAllPosts(searchKeyword, currentPage),
-    queryKey: ["posts"],
+    isLoadingDeleteData,
+    queryClient,
+    searchKeywordHandler,
+    submitSearchKeywordHandler,
+    deleteDataHandler,
+    setCurrentPage,
+  } = useDataTable({
+    dataQueryFn: () => getAllPosts(searchKeyword, currentPage),
+    dataQueryKey: "posts",
+    deleteDataMessage: "Article supprimé",
+    mutateDeleteFn: ({ slug, token }) => {
+      return deletePost({ slug, token });
+    },
   });
-
-  const { mutate: mutateDeletePost, isLoading: isLoadingDeletePost } =
-    useMutation({
-      mutationFn: ({ slug, token }) => {
-        return deletePost({ slug, token });
-      },
-      onSuccess: (data) => {
-        queryClient.invalidateQueries(["posts"]);
-        toast.success("Article supprimé");
-      },
-      onError: (error) => {
-        toast.error(error.message);
-        console.log(error);
-      },
-    });
-
-  useEffect(() => {
-    if (isFirstRun) {
-      isFirstRun = false;
-      return;
-    }
-    refetch();
-  }, [refetch, currentPage]);
-
-  const searchKeywordHandler = (e) => {
-    const { value } = e.target;
-    setSearchKeyword(value);
-  };
-
-  const submitSearchKeywordHandler = (e) => {
-    e.preventDefault();
-    setCurrentPage(1);
-    refetch();
-  };
-
-  const deletePostHandler = ({ slug, token }) => {
-    mutateDeletePost({ slug, token });
-  };
 
   return (
     <div>
@@ -173,7 +137,17 @@ const ManagePosts = () => {
                         <td className="px-5 py-5 text-sm bg-white border-b border-gray-200">
                           <p className="text-gray-900 whitespace-no-wrap">
                             {post.categories.length > 0
-                              ? post.categories[0]
+                              ? post.categories
+                                  .slice(0, 3)
+                                  .map(
+                                    (category, index) =>
+                                      `${category.title}${
+                                        post.categories.slice(0, 3).length ===
+                                        index + 1
+                                          ? ""
+                                          : ", "
+                                      }`
+                                  )
                               : "Sans catégorie"}
                           </p>
                         </td>
@@ -200,11 +174,11 @@ const ManagePosts = () => {
                         </td>
                         <td className="px-5 py-5 text-sm bg-white border-b border-gray-200 space-x-5">
                           <button
-                            disabled={isLoadingDeletePost}
+                            disabled={isLoadingDeleteData}
                             type="button"
                             className="text-red-600 hover:text-red-900 disabled:opacity-70 disabled:cursor-not-allowed"
                             onClick={() => {
-                              deletePostHandler({
+                              deleteDataHandler({
                                 slug: post?.slug,
                                 token: userState.userInfo.token,
                               });
