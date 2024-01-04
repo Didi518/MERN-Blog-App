@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from "axios";
 
 export const createNewComment = async ({
   token,
@@ -15,7 +15,7 @@ export const createNewComment = async ({
     };
 
     const { data } = await axios.post(
-      '/api/comments',
+      "/api/comments",
       { desc, slug, parent, replyOnUser },
       config
     );
@@ -58,6 +58,31 @@ export const deleteComment = async ({ token, commentId }) => {
 
     const { data } = await axios.delete(`/api/comments/${commentId}`, config);
     return data;
+  } catch (error) {
+    if (error.response && error.response.data.message)
+      throw new Error(error.response.data.message);
+    throw new Error(error.message);
+  }
+};
+
+export const getAllComments = async (
+  token,
+  recherche = "",
+  page = 1,
+  limit = 10
+) => {
+  try {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    const { data, headers } = await axios.get(
+      `/api/comments?recherche=${recherche}&page=${page}&limit=${limit}`,
+      config
+    );
+    return { data, headers };
   } catch (error) {
     if (error.response && error.response.data.message)
       throw new Error(error.response.data.message);
