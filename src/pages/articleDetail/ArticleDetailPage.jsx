@@ -1,19 +1,19 @@
-import React, { useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { useQuery } from '@tanstack/react-query';
+import React, { useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { useQuery } from "@tanstack/react-query";
 
-import BreadCrumbs from '../../components/BreadCrumbs';
-import CommentsContainer from '../../components/comments/CommentsContainer';
-import MainLayout from '../../components/MainLayout';
-import SocialShareButtons from '../../components/SocialShareButtons';
-import { images, stables } from '../../constants';
-import SuggestedPosts from './container/SuggestedPosts';
-import { getAllPosts, getSinglePost } from '../../services/index/posts';
-import ArticleDetailSkeleton from './components/ArticleDetailSkeleton';
-import ErrorMessage from '../../components/ErrorMessage';
-import parseJsonToHtml from '../../utils/parseJsonToHtml';
-import Editor from '../../components/editor/Editor';
+import BreadCrumbs from "../../components/BreadCrumbs";
+import CommentsContainer from "../../components/comments/CommentsContainer";
+import MainLayout from "../../components/MainLayout";
+import SocialShareButtons from "../../components/SocialShareButtons";
+import { images, stables } from "../../constants";
+import SuggestedPosts from "./container/SuggestedPosts";
+import { getAllPosts, getSinglePost } from "../../services/index/posts";
+import ArticleDetailSkeleton from "./components/ArticleDetailSkeleton";
+import ErrorMessage from "../../components/ErrorMessage";
+import parseJsonToHtml from "../../utils/parseJsonToHtml";
+import Editor from "../../components/editor/Editor";
 
 const ArticleDetailPage = () => {
   const { slug } = useParams();
@@ -23,12 +23,12 @@ const ArticleDetailPage = () => {
 
   const { data, isLoading, isError } = useQuery({
     queryFn: () => getSinglePost({ slug }),
-    queryKey: ['blog', slug],
+    queryKey: ["blog", slug],
     onSuccess: (data) => {
       setbreadCrumbsData([
-        { name: 'Home', link: '/' },
-        { name: 'Blog', link: '/blog' },
-        { name: 'Article title', link: `/blog/${data.slug}` },
+        { name: "Accueil", link: "/" },
+        { name: "Blog", link: "/blog" },
+        { name: "Article title", link: `/blog/${data.slug}` },
       ]);
       setBody(parseJsonToHtml(data?.body));
     },
@@ -36,7 +36,7 @@ const ArticleDetailPage = () => {
 
   const { data: postsData } = useQuery({
     queryFn: () => getAllPosts(),
-    queryKey: ['posts'],
+    queryKey: ["posts"],
   });
 
   return (

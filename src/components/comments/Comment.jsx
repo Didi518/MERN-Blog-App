@@ -1,8 +1,7 @@
-import React from 'react';
-import { FiEdit2, FiMessageSquare, FiTrash } from 'react-icons/fi';
+import { FiEdit2, FiMessageSquare, FiTrash } from "react-icons/fi";
 
-import { images, stables } from '../../constants';
-import CommentForm from './CommentForm';
+import { images, stables } from "../../constants";
+import CommentForm from "./CommentForm";
 
 const Comment = ({
   comment,
@@ -19,17 +18,20 @@ const Comment = ({
   const commentBelongsToUser = logginedUserId === comment.user._id;
   const isReplying =
     affectedComment &&
-    affectedComment.type === 'replying' &&
+    affectedComment.type === "replying" &&
     affectedComment._id === comment._id;
   const isEditing =
     affectedComment &&
-    affectedComment.type === 'editing' &&
+    affectedComment.type === "editing" &&
     affectedComment._id === comment._id;
   const repliedCommentId = parentId ? parentId : comment._id;
   const replyOnUserId = comment.user._id;
 
   return (
-    <div className="flex flex-nowrap items-start gap-x-3 bg-[#F2F4F5] p-3 rounded-lg">
+    <div
+      className="flex flex-nowrap items-start gap-x-3 bg-[#F2F4F5] p-3 rounded-lg"
+      id={`commentaire-${comment?._id}`}
+    >
       <img
         src={
           comment?.user?.avatar
@@ -44,11 +46,11 @@ const Comment = ({
           {comment.user.name}
         </h5>
         <span className="text-xs text-dark-light">
-          {new Date(comment.createdAt).toLocaleDateString('fr', {
-            day: 'numeric',
-            month: 'short',
-            year: 'numeric',
-            hour: '2-digit',
+          {new Date(comment.createdAt).toLocaleDateString("fr", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+            hour: "2-digit",
           })}
         </span>
         {!isEditing && (
@@ -69,7 +71,7 @@ const Comment = ({
             <button
               className="flex items-center space-x-2"
               onClick={() =>
-                setAffectedComment({ type: 'replying', _id: comment._id })
+                setAffectedComment({ type: "replying", _id: comment._id })
               }
             >
               <FiMessageSquare className="w-4 h-auto" />
@@ -81,7 +83,7 @@ const Comment = ({
               <button
                 className="flex items-center space-x-2"
                 onClick={() =>
-                  setAffectedComment({ type: 'editing', _id: comment._id })
+                  setAffectedComment({ type: "editing", _id: comment._id })
                 }
               >
                 <FiEdit2 className="w-4 h-auto" />

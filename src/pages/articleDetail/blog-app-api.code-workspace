@@ -1,0 +1,13 @@
+{
+  "folders": [
+	{
+		"name": "blog-app-api",
+		"path": "../../../../blog-app-api"
+	},
+	{
+		"name": "blog-app-client",
+		"path": "../../.."
+	}
+],
+  "settings": {}
+}

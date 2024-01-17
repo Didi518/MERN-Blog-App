@@ -1,9 +1,14 @@
+import { Link } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+
 import images from "../../../../constants/images";
 import stables from "../../../../constants/stables";
 import { useDataTable } from "../../../../hooks/useDataTable";
 import {
   deleteComment,
   getAllComments,
+  updateComment,
 } from "../../../../services/index/comments";
 import DataTable from "../../components/DataTable";
 
@@ -28,6 +33,25 @@ const Comments = () => {
     deleteDataMessage: "Commentaire supprimé",
     mutateDeleteFn: ({ slug, token }) => {
       return deleteComment({ commentId: slug, token });
+    },
+  });
+
+  const {
+    mutate: mutateUpdateCommentCheck,
+    isLoading: isLoadingUpdateCommentCheck,
+  } = useMutation({
+    mutationFn: ({ token, check, commentId }) => {
+      return updateComment({ token, check, commentId });
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries(["comments"]);
+      toast.success(
+        data?.check ? "Commentaire approuvé" : "Commentaire non approuvé"
+      );
+    },
+    onError: (error) => {
+      toast.error(error.message);
+      console.log(error);
     },
   });
 
@@ -78,7 +102,72 @@ const Comments = () => {
             </div>
           </td>
           <td className="px-5 py-5 text-sm bg-white border-b border-gray-200">
+            {comment?.replyOnUser !== null && (
+              <p className="text-gray-900 whitespace-no-wrap">
+                En réponse à{" "}
+                <Link
+                  to={`/blog/${comment?.post?.slug}/#commentaire-${comment?.id}`}
+                  className="text-blue-500"
+                >
+                  {comment?.replyOnUser?.name}
+                </Link>
+              </p>
+            )}
             <p className="text-gray-900 whitespace-no-wrap">{comment?.desc}</p>
+          </td>
+          <td className="px-5 py-5 text-sm bg-white border-b border-gray-200">
+            <p className="text-gray-900 whitespace-no-wrap">
+              <Link
+                to={`/blog/${comment?.post?.slug}`}
+                className="text-blue-500"
+              >
+                {comment?.post?.title}
+              </Link>
+            </p>
+          </td>
+          <td className="px-5 py-5 text-sm bg-white border-b border-gray-200">
+            <p className="text-gray-900 whitespace-no-wrap">
+              {new Date(comment.createdAt).toLocaleDateString("fr", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "2-digit",
+                hour: "numeric",
+                minute: "numeric",
+              })}
+            </p>
+          </td>
+          <td className="px-5 py-5 text-sm bg-white border-b border-gray-200 space-x-5">
+            <button
+              disabled={isLoadingDeleteData}
+              type="button"
+              className={`${
+                comment?.check
+                  ? "text-yellow-600 hover:text-yellow-900"
+                  : "text-green-600 hover:text-green-900"
+              } disabled:opacity-70 disabled:cursor-not-allowed`}
+              onClick={() => {
+                mutateUpdateCommentCheck({
+                  token: userState.userInfo.token,
+                  check: comment?.check ? false : true,
+                  commentId: comment._id,
+                });
+              }}
+            >
+              {comment?.check ? "Désapprouver" : "Approuver"}
+            </button>
+            <button
+              disabled={isLoadingDeleteData}
+              type="button"
+              className="text-red-600 hover:text-red-900 disabled:opacity-70 disabled:cursor-not-allowed"
+              onClick={() => {
+                deleteDataHandler({
+                  slug: comment?._id,
+                  token: userState.userInfo.token,
+                });
+              }}
+            >
+              Supprimer
+            </button>
           </td>
           {/* <td className="px-5 py-5 text-sm bg-white border-b border-gray-200">
             <p className="text-gray-900 whitespace-no-wrap">
@@ -107,27 +196,6 @@ const Comments = () => {
                   ))
                 : "Aucun tag"}
             </div>
-          </td>
-          <td className="px-5 py-5 text-sm bg-white border-b border-gray-200 space-x-5">
-            <button
-              disabled={isLoadingDeleteData}
-              type="button"
-              className="text-red-600 hover:text-red-900 disabled:opacity-70 disabled:cursor-not-allowed"
-              onClick={() => {
-                deleteDataHandler({
-                  slug: post?.slug,
-                  token: userState.userInfo.token,
-                });
-              }}
-            >
-              Supprimer
-            </button>
-            <Link
-              to={`/admin/articles/gestion/modifier/${post?.slug}`}
-              className="text-green-600 hover:text-green-900"
-            >
-              Modifier
-            </Link>
           </td> */}
         </tr>
       ))}
