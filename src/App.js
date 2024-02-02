@@ -12,6 +12,9 @@ import Admin from "./pages/admin/screens/Admin";
 import Comments from "./pages/admin/screens/comments/Comments";
 import ManagePosts from "./pages/admin/screens/posts/ManagePosts";
 import EditPost from "./pages/admin/screens/posts/EditPost";
+import Categories from "./pages/admin/screens/categories/Categories";
+import EditCategories from "./pages/admin/screens/categories/EditCategories";
+import NotFound from "./pages/404/404";
 
 function App() {
   return (
@@ -26,11 +29,17 @@ function App() {
           <Route index element={<Admin />} />
           <Route path="commentaires" element={<Comments />} />
           <Route path="articles/gestion" element={<ManagePosts />} />
+          <Route path="categories/gestion" element={<Categories />} />
           <Route
             path="articles/gestion/modifier/:slug"
             element={<EditPost />}
           />
+          <Route
+            path="categories/gestion/modifier/:slug"
+            element={<EditCategories />}
+          />
         </Route>
+        <Route path="*" element={<NotFound />} />
       </Routes>
       <Toaster />
     </div>

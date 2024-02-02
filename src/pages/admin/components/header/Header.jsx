@@ -105,17 +105,19 @@ const Header = () => {
                 name="posts"
                 activeNavName={activeNavName}
                 setActiveNavName={setActiveNavName}
-              />
-              <Link to="/admin/articles/gestion">Gerer les articles</Link>
-              <button
-                disabled={isLoadingCreatePost}
-                className="text-start disabled:opacity-60 disabled:cursor-not-allowed"
-                onClick={() =>
-                  handleCreateNewPost({ token: userState.userInfo.token })
-                }
               >
-                Nouvel Article
-              </button>
+                <Link to="/admin/articles/gestion">Gerer les articles</Link>
+                <button
+                  disabled={isLoadingCreatePost}
+                  className="text-start disabled:opacity-60 disabled:cursor-not-allowed"
+                  onClick={() =>
+                    handleCreateNewPost({ token: userState.userInfo.token })
+                  }
+                >
+                  Nouvel Article
+                </button>
+                <Link to="/admin/categories/gestion">Catégories</Link>
+              </NavItemCollapse>
             </div>
           </div>
         </div>

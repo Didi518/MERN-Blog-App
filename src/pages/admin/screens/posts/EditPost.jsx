@@ -19,7 +19,7 @@ import Editor from "../../../../components/editor/Editor";
 import MultiSelectTagDropdown from "../../components/select-dropdown/MultiSelectTagDropdown";
 
 const promiseOptions = async (inputValue) => {
-  const categoriesData = await getAllCategories();
+  const { data: categoriesData } = await getAllCategories();
   return filterCategories(inputValue, categoriesData);
 };
 
